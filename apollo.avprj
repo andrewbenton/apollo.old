@@ -1,0 +1,47 @@
+### AutoVala Project ###
+autovala_version: 14
+project_name: apollo
+vala_version: 0.26
+
+define: DEBUG
+*define: 0
+
+
+*vala_binary: src/apollo
+*vala_source: apollo.vala
+
+
+vala_library: src/ai/behavioral/libapollo-ai-behavioral.so
+namespace: apollo.ai.behavioral
+vala_check_package: gio-2.0
+vala_check_package: gmodule-2.0
+*vala_source: behavioral_tree_set.vala
+*vala_source: bt_error.vala
+*vala_source: dynamic_node.vala
+*vala_source: node.vala
+*vala_source: node_context.vala
+*vala_source: status_value.vala
+*vala_source: tree_context.vala
+
+vala_library: src/img/reg/libapollo-img-reg.so
+namespace: apollo.img.reg
+vala_check_package: gio-2.0
+vala_check_package: gmodule-2.0
+c_library: m
+*vala_source: interp.vala
+*vala_source: interp_type.vala
+*vala_source: landmarks.vala
+*vala_source: optimizer.vala
+*vala_source: params.vala
+*vala_source: pix_type.vala
+*vala_source: util.vala
+*vala_source: volume.vala
+*vala_source: xform.vala
+*vala_source: xform_methods.vala
+
+*po: po
+
+*data: data/local
+
+*doc: doc
+
