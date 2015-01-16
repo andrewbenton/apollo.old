@@ -46,6 +46,9 @@ namespace apollo.img.reg
     {
         if(little_endian())
         {
+#if DEBUG
+            stdout.printf("swap: swapping big endian to little endian\n");
+#endif
             endian2_swap((void*)data, data.length);
         }
     }
@@ -54,6 +57,9 @@ namespace apollo.img.reg
     {
         if(big_endian())
         {
+#if DEBUG
+            stdout.printf("swap: swapping little endian to big endian\n");
+#endif
             endian2_swap((void*)data, data.length);
         }
     }
@@ -81,6 +87,9 @@ namespace apollo.img.reg
     {
         if(little_endian())
         {
+#if DEBUG
+            stdout.printf("swap: swapping big endian to little endian\n");
+#endif
             endian4_swap((void*)data, data.length);
         }
     }
@@ -89,6 +98,9 @@ namespace apollo.img.reg
     {
         if(big_endian())
         {
+#if DEBUG
+            stdout.printf("swap: swapping little endian to big endian\n");
+#endif
             endian4_swap((void*)data, data.length);
         }
     }

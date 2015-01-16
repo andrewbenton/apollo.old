@@ -5,7 +5,6 @@ namespace apollo.img.reg
         /**
          * Determines the score between the two volumes.  Optionally uses landmarks to modify the score.
          *
-         * @param region_scores The individual region scores.
          * @param a First region to compare.  Order doesn't matter.
          * @param b Second region to compare. Order doesn't matter.
          * @param landmarks_a An optional landmarks parameter to modify the score. These are only for volume a.
@@ -16,8 +15,8 @@ namespace apollo.img.reg
 
         /**
          * Attempts to improve upon the previous transformation 'xf' based on the region scores.
+         *
          * @param xf The currently used xform
-         * @param region_scores The individual error scores for each region
          * @return A new Xform that should hopefully provide a better result
          */
         public abstract Xform improve(Xform xf);

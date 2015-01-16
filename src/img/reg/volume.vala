@@ -27,6 +27,12 @@ namespace apollo.img.reg
             this.step = new float[9];
             this.proj = new float[9];
             this.dcos = new float[9];
+            {
+                for(int i = 0; i < this.dcos.length; i++) this.dcos[i] = 0;
+                this.dcos[0] = 1;
+                this.dcos[4] = 1;
+                this.dcos[8] = 1;
+            }
 
             this.dim[0] = x;
             this.dim[1] = y;
@@ -43,6 +49,13 @@ namespace apollo.img.reg
             this.step = new float[9];
             this.proj = new float[9];
             this.dcos = new float[9];
+            {
+                //set default dcos values
+                for(int i = 0; i < this.dcos.length; i++) this.dcos[i] = 0;
+                this.dcos[0] = 1;
+                this.dcos[4] = 1;
+                this.dcos[8] = 1;
+            }
 
             this.pix_type = PixType.UNDEFINED;
             this.pix_size = -1;
@@ -50,7 +63,7 @@ namespace apollo.img.reg
             int tmp = 0;
             int a = 0, b = 0, c = 0;
 
-            float[9] dc = {0, 0, 0, 0, 0, 0, 0, 0, 0};
+            float[9] dc = {1, 0, 0, 0, 1, 0, 0, 0, 1};
             bool have_dcos = false;
 
             bool big_endian_input = false;
@@ -185,52 +198,106 @@ namespace apollo.img.reg
             }
 
             const float uint8maxf = (float)uint8.MAX;
-            const float shortmaxf = (float)short.MAX;
+            //const float shortmaxf = (float)short.MAX;
+            const int   shortmaxi = (int)short.MAX;
+            const int   shortmini = (int)short.MIN;
             short s_temp = 0;
+            int i_temp = 0;
             uint idx = 0;
+            uint stride = 0;
+#if DEBUG
+            const uint show_gap = 1000000;
+#endif
 
             switch(this.pix_type)
             {
+                // IEEE float
                 case PixType.FLOAT:
-                    for(int x = 0; x < this.dim[0]; x++)
+                    stride = (uint)sizeof(float);
+                    for(int z = 0; z < this.dim[2]; z++)
                     {
                         for(int y = 0; y < this.dim[1]; y++)
                         {
-                            for(int z = 0; z < this.dim[2]; z++)
+                            for(int x = 0; x < this.dim[0]; x++)
                             {
-                                //this.data[x,y,z] = d_buff[idx];
                                 Memory.copy(&this.data[x,y,z], &(d_buff[idx * sizeof(float)]), sizeof(float));
-                                idx++;
+#if DEBUG
+                                if(idx % show_gap == 0)
+                                {
+                                    stdout.printf("Volume[%4d,%4d,%4d] = %f , %f\n", x, y, z, this.data[x,y,z], this.data[x,y,z]);
+                                }
+#endif
+                                idx += stride;
                             }
                         }
                     }
                     break;
+                //unsigned 8 bit int
                 case PixType.UCHAR:
-                    for(int x = 0; x < this.dim[0]; x++)
+                    stride = (uint)sizeof(uint8);
+                    for(int z = 0; z < this.dim[2]; z++)
                     {
                         for(int y = 0; y < this.dim[1]; y++)
                         {
-                            for(int z = 0; z < this.dim[2]; z++)
+                            for(int x = 0; x < this.dim[0]; x++)
                             {
                                 this.data[x,y,z] = ((float)d_buff[idx])/uint8maxf;
-                                idx++;
+#if DEBUG
+                                if(idx % show_gap == 0)
+                                {
+                                    stdout.printf("Volume[%4d,%4d,%4d] = %f , %x\n", x, y, z, this.data[x,y,z], d_buff[idx]);
+                                }
+#endif
+                                idx += stride;
                             }
                         }
                     }
                     break;
+                //signed 16bit int
                 case PixType.SHORT:
-                    for(int x = 0; x < this.dim[0]; x++)
+                    stride = (uint)sizeof(short);
+                    for(int z = 0; z < this.dim[2]; z++)
                     {
                         for(int y = 0; y < this.dim[1]; y++)
                         {
-                            for(int z = 0; z < this.dim[2]; z++)
+                            for(int x = 0; x < this.dim[0]; x++)
                             {
                                 Memory.copy(&s_temp, &(d_buff[idx * sizeof(short)]), sizeof(short));
-                                this.data[x,y,z] = ((float)s_temp) / shortmaxf;
+                                //this.data[x,y,z] = ((float)s_temp) / shortmaxf;
+                                //ensure that the float value is between 0 and 1, always non-negative
+                                i_temp = (int)s_temp;
+
+                                if(i_temp < 0)
+                                {
+                                    this.data[x,y,z] = ((float)(i_temp - shortmini)) / shortmaxi;
+                                }
+                                else
+                                {
+                                    this.data[x,y,z] = (((float)i_temp) / (shortmaxi * 2)) + 0.5f;
+                                }
+                                /*
+                                if(s_temp < 0)
+                                {
+                                    this.data[x,y,z] = ((float)(s_temp + short.MAX)) / shortmaxf;
+                                }
+                                else
+                                {
+                                    this.data[x,y,z] = 0.5f + ((float)s_temp) / shortmaxf;
+                                }
+                                */
+
+#if DEBUG
+                                if(idx % show_gap == 0)
+                                {
+                                    stdout.printf("Volume[%4d,%4d,%4d] = %f , %d\n", x, y, z, this.data[x,y,z], s_temp);
+                                }
+#endif
+                                idx += stride;
                             }
                         }
                     }
                     break;
+                //something else, IDFC for now
                 default:
                     stderr.printf("Volume.from_mha: Unhandled PixType.%s\nExiting...\n", this.pix_type.to_string());
                     exit(1);
@@ -247,14 +314,6 @@ namespace apollo.img.reg
             ret.pix_size = this.pix_size;
             ret.has_dcos = this.has_dcos;
             ret.pix_type = this.pix_type;
-#if 0
-            stdout.printf("ret.step.length = %d\n", ret.step.length);
-            stdout.printf("reg.proj.length = %d\n", ret.proj.length);
-            stdout.printf("reg.dcos.length = %d\n", ret.dcos.length);
-            stdout.printf("this.step.length = %d\n", this.step.length);
-            stdout.printf("this.proj.length = %d\n", this.proj.length);
-            stdout.printf("this.dcos.length = %d\n", this.dcos.length);
-#endif
             for(int d = 0; d < 3; d++)
             {
                 //ret.dim[d] = this.dim[d];
@@ -280,8 +339,7 @@ namespace apollo.img.reg
                 exit(1);
             }
 
-            string element_type;
-
+            string element_type = "MET_FLOAT";
             switch(this.pix_type)
             {
                 case PixType.UCHAR:
@@ -290,17 +348,18 @@ namespace apollo.img.reg
                 case PixType.SHORT:
                     element_type = "MET_SHORT";
                     break;
-                case PixType.UINT32:
-                    element_type = "MET_UINT";
-                    break;
+                //case PixType.UINT32:
+                //    element_type = "MET_UINT";
+                //    break;
                 case PixType.FLOAT:
                     element_type = "MET_FLOAT";
                     break;
-                case PixType.VF_FLOAT_INTERLEAVED:
-                    element_type = "MET_FLOAT";
-                    break;
+                //case PixType.VF_FLOAT_INTERLEAVED:
+                //    element_type = "MET_FLOAT";
+                //    break;
                 default:
-                    stderr.printf("Volume: Unhandled type: %s\n", this.pix_type.to_string());
+                    stderr.printf("Volume: Unhandled type: %s. Exiting...\n", this.pix_type.to_string());
+                    exit(1);
                     return;
             }
 
@@ -314,76 +373,116 @@ namespace apollo.img.reg
 
             ios.flush();
 
-            if(this.pix_type == PixType.VF_FLOAT_INTERLEAVED)
-            {
-                write_volume_data((void*)this.data, sizeof(float), 3 * this.n_pix, ios, true);
-            }
-            else
-            {
-                write_volume_data((void*)this.data, this.pix_size, this.n_pix, ios, true);
-            }
+            uint8[] converted_data = convert_data();
+
+            write_volume_data(converted_data, ios);
 
             ios = null;
         }
 
-        private void write_volume_data(void *buf, size_t size, size_t count, FileStream ios, bool force_little_endian)
+        //convert data from vala [x,y,z] to mha [z,y,x] and size
+        private uint8[] convert_data()
         {
+            int x, y, z;
+            ulong odo = 0; //One D Offset
+            uint8[] ret;
+            uint8 uchar_val;
+            short short_val;
+            float float_val;
+
+            //uint8 buff[4] = {0, 0, 0, 0}; //copy data to this before moving to uint8 ret array
+            switch(this.pix_type)
+            {
+                //8 bit unsigned int
+                case PixType.UCHAR:
+                    ret = new uint8[this.n_pix * sizeof(uint8)];
+                    for(z = 0; z < this.dim[2]; z++)
+                    {
+                        for(y = 0; y < this.dim[1]; y++)
+                        {
+                            for(x = 0; x < this.dim[0]; x++)
+                            {
+                                //convert to uint8
+                                uchar_val = (uint8)(this.data[x,y,z] * uint8.MAX);
+                                Memory.copy(&(ret[odo]), &uchar_val, sizeof(uint8));
+                                odo += sizeof(uint8);
+                            }
+                        }
+                    }
+                    break;
+                //16 bit signed int
+                case PixType.SHORT:
+                    ret = new uint8[this.n_pix * sizeof(short)];
+                    for(z = 0; z < this.dim[2]; z++)
+                    {
+                        for(y = 0; y < this.dim[1]; y++)
+                        {
+                            for(x = 0; x < this.dim[0]; x++)
+                            {
+                                if(this.data[x,y,z] < 0.5f)
+                                {
+                                    short_val = short.MIN + (short)(this.data[x,y,z] * short.MAX);
+                                }
+                                else
+                                {
+                                    short_val = (short)((this.data[x,y,z] - 0.5f) * short.MAX);
+                                }
+                                Memory.copy(&(ret[odo]), &short_val, sizeof(short));
+                                odo += sizeof(short);
+                            }
+                        }
+                    }
+                    break;
+                case PixType.FLOAT:
+                    ret = new uint8[this.n_pix * sizeof(float)];
+                    for(z = 0; z < this.dim[2]; z++)
+                    {
+                        for(y = 0; y < this.dim[1]; y++)
+                        {
+                            for(x = 0; x < this.dim[0]; x++)
+                            {
+                                float_val = this.data[x,y,z];
+                                Memory.copy(&(ret[odo]), &float_val, sizeof(float));
+                                odo += sizeof(float);
+                            }
+                        }
+                    }
+                    break;
+                default:
+                    stderr.printf("Volume.write: Unhandled type.  Cannot convert to: %s. Exiting...\n", this.pix_type.to_string());
+                    exit(1);
+                    return new uint8[4]; //unreachable
+                    //break;
+            }
+
+            return ret;
+        }
+
+        private void write_volume_data(uint8[] data, FileStream ios)
+        {
+            //swap if needed, only if the system is big endian
             if(big_endian())
             {
-                uint8 tmp[4] = {0, 0, 0, 0};
-                if(force_little_endian && size > 1)
+                if(this.pix_size == 2)
                 {
-                    uint8[] buff = (uint8[])buf;
-                    if(size == 2)
-                    {
-                        for(size_t i = 0; i < count; i++)
-                        {
-                            tmp[0] = buff[2*i+1];
-                            tmp[1] = buff[2*i+1];
-                            size_t rc = ios.write(tmp, 2);
-                            if(rc != 2)
-                            {
-                                stdout.printf("Volume: file write error (rc = %lu)\n", rc);
-                                exit(1);
-                            }
-                        }
-                        return;
-                    }
-                    else if(size == 4)
-                    {
-                        for(size_t i = 0; i < count; i++)
-                        {
-                            //char tmp[4] = { buff[2*i + 3], buff[2*i + 1], buff[2*i + 1], buff[2*i + 0] };
-                            tmp[0] = buff[2*i + 3];
-                            tmp[1] = buff[2*i + 1];
-                            tmp[2] = buff[2*i + 1];
-                            tmp[3] = buff[2*i + 0];
-
-                            size_t rc = ios.write(tmp, 4);
-                            if(rc != 4)
-                            {
-                                stdout.printf("Volume: file write error (rc = %lu)\n", rc);
-                                exit(1);
-                            }
-                        }
-                        return;
-                    }
-                    else
-                    {
-                        stderr.printf("Volume: Cannot save pixel data size of %lu bytes\n", size);
-                        exit(1);
-                    }
+                    endian2_swap((void*)data, data.length);
                 }
-            }
-            else
-            {
-                size_t rc = ios.write((uint8[])buf, size*count);
-                if(rc != count)
+                else if(this.pix_size == 4)
                 {
-                    stdout.printf("Volume: file write error (rc = %lu)\n", rc);
+                    endian4_swap((void*)data, data.length);
+                }
+                else
+                {
+                    stderr.printf("Volume.write: Unhandled pixel size: %lu.  Exiting...\n", this.pix_size);
                     exit(1);
                 }
             }
+
+#if DEBUG
+            stdout.printf("Volume.write: Size of binary to write: %ul\n", data.length);
+#endif
+
+            ios.write(data);
         }
     }
 }
