@@ -262,7 +262,7 @@ namespace apollo.img.reg
                         {
                             for(int x = 0; x < this.dim[0]; x++)
                             {
-                                Memory.copy(&s_temp, &(d_buff[idx * sizeof(short)]), sizeof(short));
+                                Memory.copy(&s_temp, &(d_buff[idx]), sizeof(short));
                                 //this.data[x,y,z] = ((float)s_temp) / shortmaxf;
                                 //ensure that the float value is between 0 and 1, always non-negative
                                 i_temp = (int)s_temp;
@@ -275,16 +275,6 @@ namespace apollo.img.reg
                                 {
                                     this.data[x,y,z] = (((float)i_temp) / (shortmaxi * 2)) + 0.5f;
                                 }
-                                /*
-                                if(s_temp < 0)
-                                {
-                                    this.data[x,y,z] = ((float)(s_temp + short.MAX)) / shortmaxf;
-                                }
-                                else
-                                {
-                                    this.data[x,y,z] = 0.5f + ((float)s_temp) / shortmaxf;
-                                }
-                                */
 
 #if DEBUG
                                 if(idx % show_gap == 0)
