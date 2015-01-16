@@ -1,4 +1,3 @@
-src/apollo.vala
 src/ai/behavioral/behavioral_tree_set.vala
 src/ai/behavioral/bt_error.vala
 src/ai/behavioral/dynamic_node.vala

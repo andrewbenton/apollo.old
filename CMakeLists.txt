@@ -35,7 +35,6 @@ set(MODULES_TO_CHECK ${MODULES_TO_CHECK} gmodule-2.0)
 
 pkg_check_modules(DEPS REQUIRED ${MODULES_TO_CHECK})
 
-add_subdirectory(src)
 add_subdirectory(src/img/reg)
 add_subdirectory(src/ai/behavioral)
 add_subdirectory(po)

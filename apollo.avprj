@@ -7,10 +7,6 @@ define: DEBUG
 *define: 0
 
 
-*vala_binary: src/apollo
-*vala_source: apollo.vala
-
-
 vala_library: src/ai/behavioral/libapollo-ai-behavioral.so
 namespace: apollo.ai.behavioral
 vala_check_package: gio-2.0
