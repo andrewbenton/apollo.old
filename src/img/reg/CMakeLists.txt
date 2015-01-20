@@ -42,8 +42,14 @@ set (APP_SOURCES ${APP_SOURCES} xform_methods.vala)
 if (DEBUG)
 	set (COMPILE_OPTIONS ${COMPILE_OPTIONS} -D DEBUG)
 endif ()
-if (0)
-	set (COMPILE_OPTIONS ${COMPILE_OPTIONS} -D 0)
+if (USE_CUDA)
+	set (COMPILE_OPTIONS ${COMPILE_OPTIONS} -D USE_CUDA)
+endif ()
+if (USE_PHI)
+	set (COMPILE_OPTIONS ${COMPILE_OPTIONS} -D USE_PHI)
+endif ()
+if (USE_OMP)
+	set (COMPILE_OPTIONS ${COMPILE_OPTIONS} -D USE_OMP)
 endif ()
 set (COMPILE_OPTIONS ${COMPILE_OPTIONS} --library=apollo.img.reg --gir apollo.img.reg-1.0.gir )
 
@@ -58,6 +64,8 @@ GENERATE_VAPI
 GENERATE_HEADER
 	apollo.img.reg
 )
+
+set (VALA_C ${VALA_C} volume_funcs.c)
 
 add_library(apollo.img.reg SHARED ${VALA_C})
 

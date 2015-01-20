@@ -15,3 +15,4 @@ src/img/reg/util.vala
 src/img/reg/volume.vala
 src/img/reg/xform.vala
 src/img/reg/xform_methods.vala
+src/img/reg/volume_funcs.c

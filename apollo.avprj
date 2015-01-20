@@ -4,8 +4,9 @@ project_name: apollo
 vala_version: 0.26
 
 define: DEBUG
-*define: 0
-
+*define: USE_CUDA
+*define: USE_PHI
+*define: USE_OMP
 
 vala_library: src/ai/behavioral/libapollo-ai-behavioral.so
 namespace: apollo.ai.behavioral
@@ -34,6 +35,7 @@ c_library: m
 *vala_source: volume.vala
 *vala_source: xform.vala
 *vala_source: xform_methods.vala
+*c_source: volume_funcs.c
 
 *po: po
 

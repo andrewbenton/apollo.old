@@ -24,13 +24,18 @@ include (ValaPrecompile)
 
 
 set (APP_SOURCES ${APP_SOURCES} ${CMAKE_CURRENT_BINARY_DIR}/Config.vala)
-set (APP_SOURCES ${APP_SOURCES} apollo.vala)
 
 if (DEBUG)
 	set (COMPILE_OPTIONS ${COMPILE_OPTIONS} -D DEBUG)
 endif ()
-if (0)
-	set (COMPILE_OPTIONS ${COMPILE_OPTIONS} -D 0)
+if (USE_CUDA)
+	set (COMPILE_OPTIONS ${COMPILE_OPTIONS} -D USE_CUDA)
+endif ()
+if (USE_PHI)
+	set (COMPILE_OPTIONS ${COMPILE_OPTIONS} -D USE_PHI)
+endif ()
+if (USE_OMP)
+	set (COMPILE_OPTIONS ${COMPILE_OPTIONS} -D USE_OMP)
 endif ()
 
 vala_precompile(VALA_C apollo

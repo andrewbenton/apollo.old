@@ -2,6 +2,26 @@ namespace apollo.img.reg
 {
     public class Volume
     {
+
+#if USE_CUDA
+        [CCode(has_target="false", cname="apollo_img_reg_simple_diff_cuda")]
+        private static extern void apollo_img_reg_simple_diff_cuda(int64 len, float* da, float* db, float* dr);
+#endif
+
+#if USE_PHI
+        [CCode(has_target="false", cname="apollo_img_reg_simple_diff_phi")]
+        private static extern void apollo_img_reg_simple_diff_phi(int64 len, float* da, float* db, float* dr);
+#endif
+
+#if USE_OMP
+        [CCode(has_target="false", cname="apollo_img_reg_simple_diff_omp")]
+        private static extern void apollo_img_reg_simple_diff_omp(int64 len, float* da, float* db, float* dr);
+
+#endif
+
+        [CCode(cname="apollo_img_reg_simple_diff_sti")]
+        private static extern void apollo_img_reg_simple_diff_sti(int64 len, float* da, float* db, float* dr);
+
         public float[,,] data;
 
         public int[] dim;
@@ -317,6 +337,36 @@ namespace apollo.img.reg
                 ret.dcos[i] = this.dcos[i];
             }
             return ret;
+        }
+
+        public static Volume diff(Volume a, Volume b)
+        {
+            assert(a.dim[0] == b.dim[0] && a.dim[1] == b.dim[1] && a.dim[2] == b.dim[2]);
+
+            var res = a.meta_clone();
+
+            int64 len = a.dim[0] * a.dim[1] * a.dim[2];
+
+            //create dim for passing to OMP/PHI/CUDA
+            int[] dim = new int[3];
+            for(int i = 0; i < 3; i++) dim[i] = a.dim[i];
+
+            //create simple pointers for OMP/PHI/CUDA
+            float *da = (float*)a.data;
+            float *db = (float*)b.data;
+            float *dr = (float*)res.data;
+
+#if USE_CUDA
+            apollo_img_reg_simple_diff_cuda(len, da, db, dr);
+#elif USE_PHI
+            apollo_img_reg_simple_diff_phi(len, da, db, dr);
+#elif USE_OMP
+            apollo_img_reg_simple_diff_omp(len, da, db, dr);
+#else
+            apollo_img_reg_simple_diff_sti(len, da, db, dr);
+#endif
+
+            return res;
         }
 
         public void write(string file_name)
