@@ -118,7 +118,7 @@ namespace apollo.img.reg
 
             for(uint i = 0; i < point_list.length(); i++)
             {
-                var point = point_list.nth_data(i);
+                var point = point_list.nth_data(i).clone();
                 ret.landmarks[point.name] = point;
             }
 
@@ -157,6 +157,11 @@ namespace apollo.img.reg
                 this.z = z;
                 this.selected = selected;
                 this.visible  = visible;
+            }
+
+            public LandmarkPoint clone()
+            {
+                return new LandmarkPoint(this.name, this.x, this.y, this.z, this.selected, this.visible);
             }
         }
     }
