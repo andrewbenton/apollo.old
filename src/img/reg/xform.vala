@@ -4,6 +4,7 @@ namespace apollo.img.reg
     {
         public abstract InterpType interp { get; set; }
         public abstract Volume xform(Volume input);
+        public abstract Landmarks xform_landmarks(Landmarks l);
         public abstract Xform  clone();
         public abstract void   print();
     }

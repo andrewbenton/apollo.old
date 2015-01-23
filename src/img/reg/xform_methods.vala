@@ -12,6 +12,7 @@ namespace apollo.img.reg
         public abstract string get_name();
         public abstract Xform get_xform(Params parms, Volume stat, Volume moving);
         public abstract Optimizer get_optimizer(Params parms, Volume stat, Volume moving);
+        public abstract bool requires_landmarks();
     }
 
     private class PluginInfo : Object
