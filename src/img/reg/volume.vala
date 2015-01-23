@@ -271,6 +271,7 @@ namespace apollo.img.reg
                     break;
                 //signed 16bit int
                 case PixType.SHORT:
+                    const float short_range = 4407;
                     stride = (uint)sizeof(short);
                     short *s_buff = (short*)d_buff;
                     for(int z = 0; z < this.dim[2]; z++)
@@ -281,7 +282,8 @@ namespace apollo.img.reg
                             {
                                 s_temp = (short)(d_buff[idx+0] << 0) | (short)(d_buff[idx+1] << 8);
 
-                                this.data[x,y,z] = (float)(s_buff[idx / stride]);
+                                //this.data[x,y,z] = (float)(s_buff[idx / stride]);
+                                this.data[x,y,z] = ((float)(s_temp + 1407)) / short_range;
 
 #if DEBUG
                                 if(idx % show_gap == 0)
@@ -452,20 +454,16 @@ namespace apollo.img.reg
                 //16 bit signed int
                 case PixType.SHORT:
                     ret = new uint8[this.n_pix * sizeof(short)];
+                    const float short_range = 4407;
+                    const float short_min = -1407;
                     for(z = 0; z < this.dim[2]; z++)
                     {
                         for(y = 0; y < this.dim[1]; y++)
                         {
                             for(x = 0; x < this.dim[0]; x++)
                             {
-                                if(this.data[x,y,z] < 0.5f)
-                                {
-                                    short_val = short.MIN + (short)(this.data[x,y,z] * short.MAX);
-                                }
-                                else
-                                {
-                                    short_val = (short)((this.data[x,y,z] - 0.5f) * 2 * short.MAX);
-                                }
+                                short_val = (short)((short_range * this.data[x,y,z]) - short_min);
+
                                 Memory.copy(&(ret[odo]), &short_val, sizeof(short));
 #if DEBUG
                                 if((odo / this.pix_size) % 1000000 == 0)

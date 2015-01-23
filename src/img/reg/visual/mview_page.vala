@@ -106,37 +106,6 @@ namespace apollo.img.reg.visual
             }
         }
 
-#if 0
-        public void refresh()
-        {
-            int dims[3] = {0, 0, 0};
-            for(int i = 0; i < 3; i++) dims[i] = this.vol.dim[i];
-
-            for(int x = 0; x < dims[0]; x++)
-            {
-                for(int y = 0; y < dims[1]; y++)
-                {
-                    for(int z = 0; z < dims[2]; z++)
-                    {
-                        for(int dx = -1; dx < 2; dx++)
-                        {
-                            for(int dy = -1; dy < 2; dy++)
-                            {
-                                for(int dz = -1; dz < 2; dz++)
-                                {
-                                    this.smoothed_vol[
-                                        (x + dx + dims[0]) % dims[0], 
-                                        (y + dy + dims[1]) % dims[1], 
-                                        (z + dz + dims[2]) % dims[2]] += this.vol.data[x,y,z];
-                                }
-                            }
-                        }
-                    }
-                }
-            }
-        }
-#endif
-
         public void redraw()
         {
 #if DEBUG
@@ -154,7 +123,8 @@ namespace apollo.img.reg.visual
                 for(int y = 0; y < this.vol.dim[1]; y++)
                 {
                     idx = ((this.vol.dim[0] * y) + x) * 3;
-                    uint8 pval = (uint8)(((this.vol.data[x,y,this._z] - 1f) * -1) * 255);
+                    //uint8 pval = (uint8)(((this.vol.data[x,y,this._z] - 1f) * -1) * 255);
+                    uint8 pval = (uint8)(this.vol.data[x,y,this._z] * 255);
 
                     data[idx + 0] = pval;
                     data[idx + 1] = pval;
