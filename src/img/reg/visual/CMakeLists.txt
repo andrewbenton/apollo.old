@@ -11,30 +11,32 @@ set (VERSION "1.0.0")
 set (TESTSRCDIR "${CMAKE_SOURCE_DIR}")
 set (DOLLAR "$")
 
-configure_file (${CMAKE_SOURCE_DIR}/src/ai/behavioral/Config.vala.cmake ${CMAKE_BINARY_DIR}/src/ai/behavioral/Config.vala)
+configure_file (${CMAKE_SOURCE_DIR}/src/img/reg/visual/Config.vala.cmake ${CMAKE_BINARY_DIR}/src/img/reg/visual/Config.vala)
 add_definitions(-DGETTEXT_PACKAGE=\"${GETTEXT_PACKAGE}\")
-configure_file (${CMAKE_CURRENT_SOURCE_DIR}/apollo.ai.behavioral.pc ${CMAKE_CURRENT_BINARY_DIR}/apollo.ai.behavioral.pc)
-configure_file (${CMAKE_CURRENT_SOURCE_DIR}/apollo.ai.behavioral.deps ${CMAKE_CURRENT_BINARY_DIR}/apollo.ai.behavioral.deps)
+configure_file (${CMAKE_CURRENT_SOURCE_DIR}/apollo.img.reg.visual.pc ${CMAKE_CURRENT_BINARY_DIR}/apollo.img.reg.visual.pc)
+configure_file (${CMAKE_CURRENT_SOURCE_DIR}/apollo.img.reg.visual.deps ${CMAKE_CURRENT_BINARY_DIR}/apollo.img.reg.visual.deps)
 set (VERSION "1.0.0")
 add_definitions (${DEPS_CFLAGS})
-link_libraries ( ${DEPS_LIBRARIES} )
-link_directories ( ${DEPS_LIBRARY_DIRS} )
+include_directories ( ${CMAKE_BINARY_DIR}/src/img/reg )
+link_libraries ( ${DEPS_LIBRARIES} -lapollo.img.reg )
+link_directories ( ${DEPS_LIBRARY_DIRS} ${CMAKE_BINARY_DIR}/src/img/reg )
 find_package (Vala REQUIRED)
 include (ValaVersion)
 ensure_vala_version ("0.27" MINIMUM)
 include (ValaPrecompile)
 
+set (VALA_PACKAGES ${VALA_PACKAGES} gdk-3.0)
+set (VALA_PACKAGES ${VALA_PACKAGES} gdk-pixbuf-2.0)
 set (VALA_PACKAGES ${VALA_PACKAGES} gio-2.0)
 set (VALA_PACKAGES ${VALA_PACKAGES} gmodule-2.0)
+set (VALA_PACKAGES ${VALA_PACKAGES} gtk+-3.0)
 
 set (APP_SOURCES ${APP_SOURCES} ${CMAKE_CURRENT_BINARY_DIR}/Config.vala)
-set (APP_SOURCES ${APP_SOURCES} behavioral_tree_set.vala)
-set (APP_SOURCES ${APP_SOURCES} bt_error.vala)
-set (APP_SOURCES ${APP_SOURCES} dynamic_node.vala)
-set (APP_SOURCES ${APP_SOURCES} node.vala)
-set (APP_SOURCES ${APP_SOURCES} node_context.vala)
-set (APP_SOURCES ${APP_SOURCES} status_value.vala)
-set (APP_SOURCES ${APP_SOURCES} tree_context.vala)
+set (APP_SOURCES ${APP_SOURCES} mview_group.vala)
+set (APP_SOURCES ${APP_SOURCES} mview_page.vala)
+set (APP_SOURCES ${APP_SOURCES} mview_window.vala)
+
+set (CUSTOM_VAPIS_LIST ${CUSTOM_VAPIS_LIST} ${CMAKE_BINARY_DIR}/src/img/reg/apollo.img.reg.vapi)
 
 if (DEBUG)
 	set (COMPILE_OPTIONS ${COMPILE_OPTIONS} -D DEBUG)
@@ -48,7 +50,7 @@ endif ()
 if (USE_OMP)
 	set (COMPILE_OPTIONS ${COMPILE_OPTIONS} -D USE_OMP)
 endif ()
-set (COMPILE_OPTIONS ${COMPILE_OPTIONS} --library=apollo.ai.behavioral --gir apollo.ai.behavioral-1.0.gir )
+set (COMPILE_OPTIONS ${COMPILE_OPTIONS} --library=apollo.img.reg.visual --gir apollo.img.reg.visual-1.0.gir )
 if (DEBUG)
 	set (COMPILE_OPTIONS ${COMPILE_OPTIONS} -g )
 endif ()
@@ -61,59 +63,61 @@ else ()
 endif ()
 
 
-vala_precompile(VALA_C apollo.ai.behavioral
+vala_precompile(VALA_C apollo.img.reg.visual
 	${APP_SOURCES}
 PACKAGES
 	${VALA_PACKAGES}
+CUSTOM_VAPIS
+	${CUSTOM_VAPIS_LIST}
 OPTIONS
 	${COMPILE_OPTIONS}
 GENERATE_VAPI
-	apollo.ai.behavioral
+	apollo.img.reg.visual
 GENERATE_HEADER
-	apollo.ai.behavioral
+	apollo.img.reg.visual
 )
 
-add_library(apollo.ai.behavioral SHARED ${VALA_C})
+add_library(apollo.img.reg.visual SHARED ${VALA_C})
 
-set_target_properties( apollo.ai.behavioral PROPERTIES
+set_target_properties( apollo.img.reg.visual PROPERTIES
 VERSION
 	1.0.0
 SOVERSION
 	1 )
 
 install(TARGETS
-	apollo.ai.behavioral
+	apollo.img.reg.visual
 LIBRARY DESTINATION
 	${CMAKE_INSTALL_LIBDIR}/
 )
 install(FILES
-	${CMAKE_CURRENT_BINARY_DIR}/apollo.ai.behavioral.h
+	${CMAKE_CURRENT_BINARY_DIR}/apollo.img.reg.visual.h
 DESTINATION
 	${CMAKE_INSTALL_INCLUDEDIR}/
 )
 install(FILES
-	${CMAKE_CURRENT_BINARY_DIR}/apollo.ai.behavioral.vapi
+	${CMAKE_CURRENT_BINARY_DIR}/apollo.img.reg.visual.vapi
 DESTINATION
 	${CMAKE_INSTALL_DATAROOTDIR}/vala/vapi/
 )
 install(FILES
-	${CMAKE_CURRENT_BINARY_DIR}/apollo.ai.behavioral.deps
+	${CMAKE_CURRENT_BINARY_DIR}/apollo.img.reg.visual.deps
 DESTINATION
 	${CMAKE_INSTALL_DATAROOTDIR}/vala/vapi/
 )
 install(FILES
-	${CMAKE_CURRENT_BINARY_DIR}/apollo.ai.behavioral-1.0.gir
+	${CMAKE_CURRENT_BINARY_DIR}/apollo.img.reg.visual-1.0.gir
 DESTINATION
 	${CMAKE_INSTALL_DATAROOTDIR}/gir-1.0/
 )
 install(FILES
-	${CMAKE_CURRENT_BINARY_DIR}/apollo.ai.behavioral.pc
+	${CMAKE_CURRENT_BINARY_DIR}/apollo.img.reg.visual.pc
 DESTINATION
 	${CMAKE_INSTALL_LIBDIR}/pkgconfig/
 )
 if(HAVE_VALADOC)
-	valadoc(apollo.ai.behavioral
-		${CMAKE_BINARY_DIR}/valadoc/apollo.ai.behavioral
+	valadoc(apollo.img.reg.visual
+		${CMAKE_BINARY_DIR}/valadoc/apollo.img.reg.visual
 		${APP_SOURCES}
 	PACKAGES
 		${VALA_PACKAGES}

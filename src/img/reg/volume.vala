@@ -58,6 +58,8 @@ namespace apollo.img.reg
             this.dim[1] = y;
             this.dim[2] = z;
 
+            this.n_pix = this.dim[0] * this.dim[1] * this.dim[2];
+
             this.data = new float[this.dim[0], this.dim[1], this.dim[2]];
         }
 
@@ -206,27 +208,21 @@ namespace apollo.img.reg
                 exit(1);
             }
 
-            if(this.pix_size == 4)
+            if(big_endian_input ^ big_endian())
             {
-                if(big_endian_input) endian4_big_to_native(d_buff);
-                else                 endian4_little_to_native(d_buff);
-            }
-            else
-            {
-                if(big_endian_input) endian2_big_to_native(d_buff);
-                else                 endian2_little_to_native(d_buff);
+                stdout.printf("DOING BIG <-> LITTLE swap.  Current format is %s\n", big_endian() ? "BIG" : "LITTLE");
+                if(this.pix_size == 4) endian4_swap((uint8*)d_buff, d_buff.length);
+                else if(this.pix_size == 2) endian2_swap((uint8*)d_buff, d_buff.length);
             }
 
             const float uint8maxf = (float)uint8.MAX;
-            //const float shortmaxf = (float)short.MAX;
-            const int   shortmaxi = (int)short.MAX;
-            const int   shortmini = (int)short.MIN;
             short s_temp = 0;
-            int i_temp = 0;
             uint idx = 0;
             uint stride = 0;
 #if DEBUG
             const uint show_gap = 1000000;
+            short s_min_value = short.MAX;
+            short s_max_value = short.MIN;
 #endif
 
             switch(this.pix_type)
@@ -276,36 +272,33 @@ namespace apollo.img.reg
                 //signed 16bit int
                 case PixType.SHORT:
                     stride = (uint)sizeof(short);
+                    short *s_buff = (short*)d_buff;
                     for(int z = 0; z < this.dim[2]; z++)
                     {
                         for(int y = 0; y < this.dim[1]; y++)
                         {
                             for(int x = 0; x < this.dim[0]; x++)
                             {
-                                Memory.copy(&s_temp, &(d_buff[idx]), sizeof(short));
-                                //this.data[x,y,z] = ((float)s_temp) / shortmaxf;
-                                //ensure that the float value is between 0 and 1, always non-negative
-                                i_temp = (int)s_temp;
+                                s_temp = (short)(d_buff[idx+0] << 0) | (short)(d_buff[idx+1] << 8);
 
-                                if(i_temp < 0)
-                                {
-                                    this.data[x,y,z] = ((float)(i_temp - shortmini)) / shortmaxi;
-                                }
-                                else
-                                {
-                                    this.data[x,y,z] = (((float)i_temp) / (shortmaxi * 2)) + 0.5f;
-                                }
+                                this.data[x,y,z] = (float)(s_buff[idx / stride]);
 
 #if DEBUG
                                 if(idx % show_gap == 0)
                                 {
                                     stdout.printf("Volume[%4d,%4d,%4d] = %f , %d\n", x, y, z, this.data[x,y,z], s_temp);
                                 }
+
+                                if(s_temp < s_min_value) s_min_value = s_temp;
+                                if(s_temp > s_max_value) s_max_value = s_temp;
 #endif
                                 idx += stride;
                             }
                         }
                     }
+#if DEBUG
+                    stdout.printf("Volume: s_min_value: %d\nVolume: s_max_value: %d\n", s_min_value, s_max_value);
+#endif
                     break;
                 //something else, IDFC for now
                 default:
@@ -445,6 +438,12 @@ namespace apollo.img.reg
                                 //convert to uint8
                                 uchar_val = (uint8)(this.data[x,y,z] * uint8.MAX);
                                 Memory.copy(&(ret[odo]), &uchar_val, sizeof(uint8));
+#if DEBUG
+                                if((odo / this.pix_size) % 1000000 == 0)
+                                {
+                                    stdout.printf("[%4d,%4d,%4d] = %5.3f, 0x%2x\n", x, y, z, this.data[x,y,z], uchar_val);
+                                }
+#endif
                                 odo += sizeof(uint8);
                             }
                         }
@@ -465,9 +464,15 @@ namespace apollo.img.reg
                                 }
                                 else
                                 {
-                                    short_val = (short)((this.data[x,y,z] - 0.5f) * short.MAX);
+                                    short_val = (short)((this.data[x,y,z] - 0.5f) * 2 * short.MAX);
                                 }
                                 Memory.copy(&(ret[odo]), &short_val, sizeof(short));
+#if DEBUG
+                                if((odo / this.pix_size) % 1000000 == 0)
+                                {
+                                    stdout.printf("[%4d,%4d,%4d] = %5.3f, %5d\n", x, y, z, this.data[x,y,z], short_val);
+                                }
+#endif
                                 odo += sizeof(short);
                             }
                         }
@@ -483,6 +488,12 @@ namespace apollo.img.reg
                             {
                                 float_val = this.data[x,y,z];
                                 Memory.copy(&(ret[odo]), &float_val, sizeof(float));
+#if DEBUG
+                                if((odo / this.pix_size) % 1000000 == 0)
+                                {
+                                    stdout.printf("[%4d,%4d,%4d] = %5.3f\n", x, y, z, this.data[x,y,z]);
+                                }
+#endif
                                 odo += sizeof(float);
                             }
                         }

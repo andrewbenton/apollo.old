@@ -21,7 +21,7 @@ link_libraries ( ${DEPS_LIBRARIES} )
 link_directories ( ${DEPS_LIBRARY_DIRS} )
 find_package (Vala REQUIRED)
 include (ValaVersion)
-ensure_vala_version ("0.26" MINIMUM)
+ensure_vala_version ("0.27" MINIMUM)
 include (ValaPrecompile)
 
 set (VALA_PACKAGES ${VALA_PACKAGES} gio-2.0)
@@ -52,6 +52,17 @@ if (USE_OMP)
 	set (COMPILE_OPTIONS ${COMPILE_OPTIONS} -D USE_OMP)
 endif ()
 set (COMPILE_OPTIONS ${COMPILE_OPTIONS} --library=apollo.img.reg --gir apollo.img.reg-1.0.gir )
+if (DEBUG)
+	set (COMPILE_OPTIONS ${COMPILE_OPTIONS} -g )
+endif ()
+
+
+if (DEBUG)
+	set (CMAKE_C_FLAGS ${CMAKE_C_FLAGS} " -O0 -g " )
+else ()
+	set (CMAKE_C_FLAGS ${CMAKE_C_FLAGS} " -O3 " )
+endif ()
+
 
 vala_precompile(VALA_C apollo.img.reg
 	${APP_SOURCES}

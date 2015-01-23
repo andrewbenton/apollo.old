@@ -42,6 +42,7 @@ namespace apollo.img.reg
         }
     }
 
+#if 0
     void endian2_big_to_native(uint8[] data)
     {
         if(little_endian())
@@ -63,6 +64,7 @@ namespace apollo.img.reg
             endian2_swap((void*)data, data.length);
         }
     }
+#endif
 
     void endian4_swap(void* buf, ulong len)
     {
@@ -83,6 +85,7 @@ namespace apollo.img.reg
         }
     }
 
+#if 0
     void endian4_big_to_native(uint8[] data)
     {
         if(little_endian())
@@ -104,4 +107,5 @@ namespace apollo.img.reg
             endian4_swap((void*)data, data.length);
         }
     }
+#endif
 }

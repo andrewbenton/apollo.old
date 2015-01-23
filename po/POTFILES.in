@@ -16,3 +16,6 @@ src/img/reg/volume.vala
 src/img/reg/xform.vala
 src/img/reg/xform_methods.vala
 src/img/reg/volume_funcs.c
+src/img/reg/visual/mview_group.vala
+src/img/reg/visual/mview_page.vala
+src/img/reg/visual/mview_window.vala
