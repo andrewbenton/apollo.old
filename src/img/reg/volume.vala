@@ -24,39 +24,37 @@ namespace apollo.img.reg
 
         public float[,,] data;
 
-        public int[] dim;
-        public float[] offset;
-        public float[] spacing;
+        public long dim[3];
+        public float offset[3];
+        public float spacing[3];
 
-        public float[] step;
-        public float[] proj;
+        public float step[9];
+        public float proj[9];
 
-        public ulong n_pix;
+        public long n_pix;
         public ulong pix_size;
 
         public PixType pix_type;
 
-        public float[] dcos;
+        public float dcos[9];
         public bool has_dcos = false;
 
-        public Volume(int x, int y, int z)
+        public Volume(long x, long y, long z)
         {
-            this.dim = new int[3];
-            this.offset = new float[3];
-            this.spacing = new float[3];
-            this.step = new float[9];
-            this.proj = new float[9];
-            this.dcos = new float[9];
+            for(int d = 0; d < 3; d++)
             {
-                for(int i = 0; i < this.dcos.length; i++) this.dcos[i] = 0;
-                this.dcos[0] = 1;
-                this.dcos[4] = 1;
-                this.dcos[8] = 1;
+                this.spacing[d] = 0;
+                this.offset[d] = 0;
             }
 
             this.dim[0] = x;
             this.dim[1] = y;
             this.dim[2] = z;
+
+            for(int i = 0; i < this.dcos.length; i++) this.dcos[i] = 0;
+            this.dcos[0] = 1;
+            this.dcos[4] = 1;
+            this.dcos[8] = 1;
 
             this.n_pix = this.dim[0] * this.dim[1] * this.dim[2];
 
@@ -65,22 +63,14 @@ namespace apollo.img.reg
 
         public Volume.from_mha(string file_name)
         {
-            this.dim = new int[3];
-            this.offset = new float[3];
-            this.spacing = new float[3];
-            this.step = new float[9];
-            this.proj = new float[9];
-            this.dcos = new float[9];
-            {
-                //set default dcos values
-                for(int i = 0; i < this.dcos.length; i++) this.dcos[i] = 0;
-                this.dcos[0] = 1;
-                this.dcos[4] = 1;
-                this.dcos[8] = 1;
-            }
+            //set default dcos values
+            for(int i = 0; i < this.dcos.length; i++) this.dcos[i] = 0;
+            this.dcos[0] = 1;
+            this.dcos[4] = 1;
+            this.dcos[8] = 1;
 
             this.pix_type = PixType.UNDEFINED;
-            this.pix_size = -1;
+            this.pix_size = 0;
 
             int tmp = 0;
             int a = 0, b = 0, c = 0;
@@ -106,7 +96,7 @@ namespace apollo.img.reg
             //while there is a line to read
             while((line = ios.read_line()) != null)
             {
-                line._strip(); //trim in place
+                line.strip(); //trim in place
                 if(line == null) continue;
 
 #if DEBUG
@@ -119,7 +109,7 @@ namespace apollo.img.reg
                     this.dim[0] = a;
                     this.dim[1] = b;
                     this.dim[2] = c;
-                    this.n_pix = (ulong)this.dim[0] * (ulong)this.dim[1] * (ulong)this.dim[2];
+                    this.n_pix = this.dim[0] * this.dim[1] * this.dim[2];
                     continue;
                 }
                 if(line.scanf("Offset = %g %g %g", &this.offset[0], &this.offset[1], &this.offset[2]) == 3) continue;
@@ -273,7 +263,6 @@ namespace apollo.img.reg
                 case PixType.SHORT:
                     const float short_range = 4407;
                     stride = (uint)sizeof(short);
-                    short *s_buff = (short*)d_buff;
                     for(int z = 0; z < this.dim[2]; z++)
                     {
                         for(int y = 0; y < this.dim[1]; y++)
@@ -340,11 +329,7 @@ namespace apollo.img.reg
 
             var res = a.meta_clone();
 
-            int64 len = a.dim[0] * a.dim[1] * a.dim[2];
-
-            //create dim for passing to OMP/PHI/CUDA
-            int[] dim = new int[3];
-            for(int i = 0; i < 3; i++) dim[i] = a.dim[i];
+            long len = a.n_pix;
 
             //create simple pointers for OMP/PHI/CUDA
             float *da = (float*)a.data;
@@ -398,7 +383,7 @@ namespace apollo.img.reg
                     return;
             }
 
-            ios.printf("ObjectType = Image\nNDims = 3\nBinaryData = True\nBinaryDataByteOrderMSB = False\nTransformMatrix = %g %g %g %g %g %g %g %g %g\nOffset = %g %g %g\nCenterOfRotation = 0 0 0\nElementSpacing = %g %g %g\nDimSize = %d %d %d\nAnatomicalOrientation = RAI\n%sElementType = %s\nElementDataFile = LOCAL\n", 
+            ios.printf("ObjectType = Image\nNDims = 3\nBinaryData = True\nBinaryDataByteOrderMSB = False\nTransformMatrix = %g %g %g %g %g %g %g %g %g\nOffset = %g %g %g\nCenterOfRotation = 0 0 0\nElementSpacing = %g %g %g\nDimSize = %lld %lld %lld\nAnatomicalOrientation = RAI\n%sElementType = %s\nElementDataFile = LOCAL\n", 
                     this.dcos[0], this.dcos[1], this.dcos[2], this.dcos[3], this.dcos[4], this.dcos[5], this.dcos[6], this.dcos[7], this.dcos[8], 
                     this.offset[0], this.offset[1], this.offset[2],
                     this.spacing[0], this.spacing[1], this.spacing[2],

@@ -8,6 +8,9 @@ src/ai/behavioral/tree_context.vala
 src/img/reg/interp.vala
 src/img/reg/interp_type.vala
 src/img/reg/landmarks.vala
+src/img/reg/mview_group.vala
+src/img/reg/mview_page.vala
+src/img/reg/mview_window.vala
 src/img/reg/optimizer.vala
 src/img/reg/params.vala
 src/img/reg/pix_type.vala
@@ -16,6 +19,3 @@ src/img/reg/volume.vala
 src/img/reg/xform.vala
 src/img/reg/xform_methods.vala
 src/img/reg/volume_funcs.c
-src/img/reg/visual/mview_group.vala
-src/img/reg/visual/mview_page.vala
-src/img/reg/visual/mview_window.vala

@@ -2,7 +2,7 @@ using Gtk;
 using Gdk;
 using apollo.img.reg;
 
-namespace apollo.img.reg.visual
+namespace apollo.img.reg
 {
     public class MviewPage : Gtk.EventBox
     {
@@ -10,7 +10,7 @@ namespace apollo.img.reg.visual
         public apollo.img.reg.Volume vol;
         private float[,,] smoothed_vol;
         public Image img;
-        public int z 
+        public long z 
         {
             get
             {
@@ -29,7 +29,7 @@ namespace apollo.img.reg.visual
         }
 
         /* PRIVATE VARIABLES */
-        private int _z;
+        private long _z;
 
         public MviewPage(apollo.img.reg.Volume vol)
         {
@@ -38,7 +38,7 @@ namespace apollo.img.reg.visual
             this._z = 0;
             this.smoothed_vol = new float[this.vol.dim[0], this.vol.dim[1], this.vol.dim[2]];
 
-            this.img = new Image.from_pixbuf(new Pixbuf(Colorspace.RGB, false, 8, this.vol.dim[0], this.vol.dim[1]));
+            this.img = new Image.from_pixbuf(new Pixbuf(Colorspace.RGB, false, 8, (int)this.vol.dim[0], (int)this.vol.dim[1]));
 
             this.add(this.img);
             this.add_events((int)EventMask.SCROLL_MASK);

@@ -40,10 +40,16 @@ compile_c_options: -O3
 end
 vala_check_package: gio-2.0
 vala_check_package: gmodule-2.0
+vala_check_package: gdk-3.0
+vala_check_package: gdk-pixbuf-2.0
+vala_check_package: gtk+-3.0
 c_library: m
 *vala_source: interp.vala
 *vala_source: interp_type.vala
 *vala_source: landmarks.vala
+*vala_source: mview_group.vala
+*vala_source: mview_page.vala
+*vala_source: mview_window.vala
 *vala_source: optimizer.vala
 *vala_source: params.vala
 *vala_source: pix_type.vala
@@ -52,26 +58,6 @@ c_library: m
 *vala_source: xform.vala
 *vala_source: xform_methods.vala
 *c_source: volume_funcs.c
-
-vala_library: src/img/reg/visual/libapollo.img.reg.visual.so
-namespace: apollo.img.reg.visual
-if DEBUG
-compile_options: -g
-end
-if DEBUG
-compile_c_options: -O0 -g
-else
-compile_c_options: -O3
-end
-vala_local_package: apollo.img.reg
-vala_check_package: gdk-3.0
-vala_check_package: gdk-pixbuf-2.0
-vala_check_package: gio-2.0
-vala_check_package: gmodule-2.0
-vala_check_package: gtk+-3.0
-*vala_source: mview_group.vala
-*vala_source: mview_page.vala
-*vala_source: mview_window.vala
 
 *po: po
 

@@ -1,7 +1,7 @@
 using Gtk;
 using apollo.img.reg;
 
-namespace apollo.img.reg.visual
+namespace apollo.img.reg
 {
     public class MviewGroup : Object
     {

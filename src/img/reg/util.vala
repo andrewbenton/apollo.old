@@ -19,16 +19,6 @@ namespace apollo.img.reg
         return (*r != 1);
     }
 
-    public float rbf3(uint x, uint y, uint z, float i, float j, float k)
-    {
-        float r = Math.sqrtf(
-            Math.powf(i - (float)x, 2) + 
-            Math.powf(j - (float)y, 2) +
-            Math.powf(k - (float)z, 2));
-
-        return Math.powf(r, 2) * Math.logf(Math.powf(r, 2));
-    }
-
     void endian2_swap(void* buf, ulong len)
     {
         uint8[] buff = (uint8[])buf;
@@ -41,30 +31,6 @@ namespace apollo.img.reg
             buff[2*i+1] = temp;
         }
     }
-
-#if 0
-    void endian2_big_to_native(uint8[] data)
-    {
-        if(little_endian())
-        {
-#if DEBUG
-            stdout.printf("swap: swapping big endian to little endian\n");
-#endif
-            endian2_swap((void*)data, data.length);
-        }
-    }
-
-    void endian2_little_to_native(uint8[] data)
-    {
-        if(big_endian())
-        {
-#if DEBUG
-            stdout.printf("swap: swapping little endian to big endian\n");
-#endif
-            endian2_swap((void*)data, data.length);
-        }
-    }
-#endif
 
     void endian4_swap(void* buf, ulong len)
     {
@@ -84,28 +50,4 @@ namespace apollo.img.reg
             buff[4*i+3] = temp[0];
         }
     }
-
-#if 0
-    void endian4_big_to_native(uint8[] data)
-    {
-        if(little_endian())
-        {
-#if DEBUG
-            stdout.printf("swap: swapping big endian to little endian\n");
-#endif
-            endian4_swap((void*)data, data.length);
-        }
-    }
-
-    void endian4_little_to_native(uint8[] data)
-    {
-        if(big_endian())
-        {
-#if DEBUG
-            stdout.printf("swap: swapping little endian to big endian\n");
-#endif
-            endian4_swap((void*)data, data.length);
-        }
-    }
-#endif
 }
