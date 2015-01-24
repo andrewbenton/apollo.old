@@ -126,3 +126,10 @@ if(HAVE_VALADOC)
 		${CMAKE_INSTALL_DATAROOTDIR}/doc/apollo
 	)
 endif()
+
+install(CODE "MESSAGE (\"
+************************************************
+* Run 'sudo ldconfig' to complete installation *
+************************************************
+
+\") " )

@@ -32,14 +32,10 @@ endif()
 
 find_package(PkgConfig)
 
-set(MODULES_TO_CHECK ${MODULES_TO_CHECK} gdk-3.0)
-set(MODULES_TO_CHECK ${MODULES_TO_CHECK} gdk-pixbuf-2.0)
 set(MODULES_TO_CHECK ${MODULES_TO_CHECK} gio-2.0)
 set(MODULES_TO_CHECK ${MODULES_TO_CHECK} gmodule-2.0)
-set(MODULES_TO_CHECK ${MODULES_TO_CHECK} gtk+-3.0)
 
 pkg_check_modules(DEPS REQUIRED ${MODULES_TO_CHECK})
 
-add_subdirectory(src/img/reg)
 add_subdirectory(src/ai/behavioral)
 add_subdirectory(po)
