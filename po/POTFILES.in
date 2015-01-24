@@ -14,8 +14,10 @@ src/img/reg/mview_window.vala
 src/img/reg/optimizer.vala
 src/img/reg/params.vala
 src/img/reg/pix_type.vala
+src/img/reg/reg_group.vala
 src/img/reg/util.vala
 src/img/reg/volume.vala
 src/img/reg/xform.vala
 src/img/reg/xform_methods.vala
+src/img/reg/score_type.vala
 src/img/reg/volume_funcs.c
